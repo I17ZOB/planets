@@ -3,6 +3,34 @@ import {OrbitControls} from "three/addons/controls/OrbitControls.js";
 
 const std_dist = 5.0;
 
+function getPlanetSphericalHYG(planet) {
+    const dist = planet.dist;
+    const ra = d2r(ra24h2d(planet.ra));
+    const dec = d2r(planet.dec);
+    const phi = 2 * Math.PI - ra;
+    const theta = 0.5 * Math.PI - dec;
+    //alert([phi/Math.PI, theta/Math.PI]);
+    return new THREE.Spherical(dist, theta, phi);
+}
+
+
+function getPlanetSphericalExoplanets(planet) {
+    const dist = planet.sy_dist;
+    const ra = d2r(planet.ra);
+    const dec = d2r(planet.dec);
+    const phi = 2 * Math.PI - ra;
+    const theta = 0.5 * Math.PI - dec;
+    //alert([phi/Math.PI, theta/Math.PI]);
+    return new THREE.Spherical(dist, theta, phi);
+}
+
+const databases = {
+    "HYG": {"file": "./hygdata_v3.csv", "getSpherical": getPlanetSphericalHYG},
+    "exoplanets": {"file": "./exoplanets.csv", "getSpherical": getPlanetSphericalExoplanets},
+};
+
+const db = "exoplanets";
+
 function d2r(d) {
     return d / 180 * Math.PI;
 }
@@ -16,26 +44,6 @@ function getPlanetRadius(planet) {
     const radius = planet.r1;
 }
 
-function getPlanetSphericalHYG(planet) {
-    const dist = planet.dist;
-    const ra = d2r(ra24h2d(planet.ra));
-    const dec = d2r(planet.dec);
-    const phi = 2 * Math.PI - ra;
-    const theta = 0.5 * Math.PI - dec;
-    //alert([phi/Math.PI, theta/Math.PI]);
-    return new THREE.Spherical(std_dist, theta, phi);
-}
-
-
-function getPlanetSphericalNASA(planet) {
-    const dist = planet.pl_dist;
-    const ra = d2r(planet.ra);
-    const dec = d2r(planet.dec);
-    const phi = 2 * Math.PI - ra;
-    const theta = 0.5 * Math.PI - dec;
-    //alert([phi/Math.PI, theta/Math.PI]);
-    return new THREE.Spherical(dist, theta, phi);
-}
 
 function universeInit() {
     /* three.js example */
@@ -53,8 +61,8 @@ function universeInit() {
 
     camera.position.z = 5;
     const controls = new OrbitControls( camera, renderer.domElement );
-    controls.enablePan = false;
-    //	 controls.listenToKeyEvents( window );
+    controls.enablePan = true;
+    controls.listenToKeyEvents( window );
 
     function animate() {
         requestAnimationFrame( animate );
@@ -74,14 +82,13 @@ function universeInit() {
         const material = new THREE.MeshBasicMaterial({color: color});
         const sphere = new THREE.Mesh(geo, material);
 
-        var sph = getPlanetSphericalNASA(planet);
+        var sph = databases[db].getSpherical(planet);
 
         sphere.position.setFromSpherical(sph);
         scene.add(sphere);
     };
 
-    //    $.get("./hygdata_v3.csv", function(data) {
-        $.get("./exoplanets.csv", function(data) {
+    $.get(databases[db].file, function(data) {
         const exoplanets = $.csv.toObjects(data);
         for (const [i, planet] of exoplanets.entries()) {
             drawPlanet(planet, false);

@@ -89,17 +89,86 @@ const databases = {
 
 const db = "exoplanets";
 
+let planetGroups = [];
+
+let planetGroupDivs = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 150, 180, 200, 250, 300, 350, 400, 500, 700, 1000];
+let planetGroupDivSets = [];
+
+function findPlanetGroups(dis) {
+    const i = 1 + planetGroupDivs.findIndex((e) => dis >= e);
+    return planetGroupDivSets[i];
+}
+
+function findPlanetGroupDivs(disFrom, disTo) {
+    let groupSet = [];
+    for (const group of planetGroups) {
+        const dis = group.center.length();
+        if (dis - 2 * group.radius <= disTo && dis + 2 * group.radius >=disFrom) {
+            groupSet.push(group);
+        }
+    }
+    return groupSet;
+}
+
+function dividePlanetGroups() {
+    let last_div = -Infinity;
+    for (const [i, div] of planetGroupDivs.entries()) {
+        let groupSet = findPlanetGroupDivs(last_div, div);
+        planetGroupDivSets.push(groupSet);
+        last_div = div;
+    }
+    let groupSet = findPlanetGroupDivs(last_div, Infinity);
+    planetGroupDivSets.push(groupSet);
+
+    for (const groupSet of planetGroupDivSets) {
+        //alert(groupSet.length);
+    }
+}
     
 function drawPlanet(scene, planet, test) {
-    const geo = new THREE.SphereGeometry(databases[db].getRadius(planet), 8, 8);
+    const radius = databases[db].getRadius(planet);
+    const geo = new THREE.SphereGeometry(radius, 8, 8);
     const color = test ? 0xff0000 : databases[db].getColor(planet);
     const material = new THREE.MeshBasicMaterial({color: color});
     const sphere = new THREE.Mesh(geo, material);
 
     var sph = databases[db].getSpherical(planet);
 
-    sphere.position.setFromSpherical(sph);
+    const visibleRad = radius * 100;
+    const groupMinRad = sph.radius / 16;
+    const globalMinRad = 10;
+    const newGroupRad = Math.max(visibleRad, globalMinRad, groupMinRad);
+
+    var center = new THREE.Vector3();
+    center.setFromSpherical(sph);
+    sphere.position.copy(center);
     scene.add(sphere);
+
+    let foundGroup = false;
+
+    for (var group of planetGroups) {
+        let dist = group.center.distanceTo(center);
+        //alert(group.radius + " " + dist + " " + newGroupRad);
+        if (newGroupRad > group.radius + dist) {
+            group.center = center;
+            group.radius = newGroupRad;
+            group.members.push(sphere);
+            foundGroup = true;
+            break;
+        } else if (dist < group.radius) {
+            group.members.push(sphere);
+            foundGroup = true;
+            break;
+        }
+    }
+
+    if (!foundGroup) {
+        let newGroup = {};
+        newGroup.radius = newGroupRad;
+        newGroup.center = center;
+        newGroup.members = [sphere];
+        planetGroups.push(newGroup);
+    }
 };
 
 function drawSolarSystem(scene) {
@@ -156,6 +225,14 @@ function universeInit() {
               continue;
             drawPlanet(scene, planet, false);
         }
+        //alert(planetGroups.length);
+        let maxGroupSize = -1;
+        for (const group of planetGroups) {
+            maxGroupSize = Math.max(group.members.length, maxGroupSize);
+        }
+        //alert(maxGroupSize);
+
+        dividePlanetGroups();
     });
     
     animate();

@@ -6,8 +6,6 @@ import $ from 'jquery';
 var csv = require('jquery-csv');
 var ct = require('color-temperature');
 
-require('popper.js');
-
 const std_dist = 5.0;
 
 function d2r(d) {

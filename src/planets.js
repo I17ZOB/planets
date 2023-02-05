@@ -3,6 +3,8 @@ import {OrbitControls} from "three/addons/controls/OrbitControls.js";
 
 import $ from 'jquery';
 var csv = require('jquery-csv');
+var ct = require('color-temperature');
+
 
 const std_dist = 5.0;
 
@@ -49,7 +51,7 @@ function getRadiusExoplanets(planet) {
 
 function invalidPlanetExoplanets(planet) {
     return !planet || !planet.ra || !planet.dec || !planet.pl_rade
-    || !planet.sy_dist || !planet.pl_eqt;
+    || !planet.sy_dist;
 }
 
 
@@ -58,13 +60,14 @@ function invalidPlanetHYG(planet) {
     return !planet;
 }
 
-function temp2color(planet) {
-    /* TODO */
+function temp2color(temp) {
+    const rgb = ct.colorTemperature2rgb(temp);
+    //return rgb.red * 0x10000 + rgb.green * 0x100 + rgb.blue;
     return 0xffffff;
 }
 
 function getColorExoplanets(planet) {
-    const temp = planet.pl_eqt;
+    const temp = planet.pl_eqt || 300;
     return temp2color(temp);
 }
 
@@ -89,7 +92,7 @@ const db = "exoplanets";
     
 function drawPlanet(scene, planet, test) {
     const geo = new THREE.SphereGeometry(databases[db].getRadius(planet), 8, 8);
-    const color = test ? 0xff0000 : 0xffffff;
+    const color = test ? 0xff0000 : databases[db].getColor(planet);
     const material = new THREE.MeshBasicMaterial({color: color});
     const sphere = new THREE.Mesh(geo, material);
 

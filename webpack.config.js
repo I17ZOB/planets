@@ -11,7 +11,9 @@ module.exports = {
 		path: path.resolve(__dirname, 'dist'),
 	},
 	plugins: [
-		new HtmlWebpackPlugin(),
+		new HtmlWebpackPlugin({
+			title: "Interstellar",
+		}),
 		new CopyPlugin({
 			patterns: [
 				{ from: "./data", to: "." },

@@ -11,8 +11,8 @@
     "type": "git",
     "url": "git+https://github.com/I17ZOB/planets.git"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Hantao Ye, Xun Xie",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/I17ZOB/planets/issues"
   },

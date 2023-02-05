@@ -43,11 +43,12 @@ function getDescExoplanets(planet) {
     desc["Host Name"] = planet.hostname;
     desc["Discovered Year"] = planet.disc_year;
     desc["Discovered Facility"] = planet.disc_facility;
-    desc["Mass"] = planet.pl_bmasse;
-    desc["Distance"] = planet.sy_dist;
-    desc["Planet Radius"] = planet.pl_rade;
+    desc["Mass"] = planet.pl_bmasse + " Earth Mass";
+    desc["Distance"] = planet.sy_dist + " pc";
+    desc["Planet Radius"] = planet.pl_rade + " Earth Radius";
     desc["Right Ascension"] = planet.rastr;
     desc["Declination"] = planet.decstr;
+    desc["Link"] = "https://exoplanetarchive.ipac.caltech.edu/overview/" + planet.pl_name;
 
     return desc;
 }
@@ -287,12 +288,28 @@ function universeInit() {
             const toastTitle = document.getElementById("toast-title");
             toastTitle.textContent = planetDesc["Planet Name"];
 
+            const toastBody = document.getElementById("toast-body");
+            toastBody.innerHTML = "";
+            const details = document.createElement("ul");
+            details.classList.add("list-group");
+
             for (let key in planetDesc) {
-                if (key == "Planet Name") 
+                if (key == "Planet Name")
                     continue;
 
-                
+                const detail = document.createElement("li");
+                detail.classList.add("list-group-item");
+
+                if (key == "Link") {
+                    detail.innerHTML = "<a href=\"" + planetDesc[key] + "\" target=\"_blank\">Reference Link</a>"
+                } else {
+                    detail.textContent = key + ": " + planetDesc[key];
+                }
+
+                details.appendChild(detail);
+
             }
+            toastBody.appendChild(details);
 
             triggerToast();
         }
@@ -320,7 +337,7 @@ function initializeToast() {
     toast.setAttribute("role", "alert");
     toast.setAttribute("aria-live", "assertive");
     toast.setAttribute("aria-atomic", "true");
-    toast.setAttribute("autohide", "false");
+    toast.setAttribute("data-bs-autohide", "false");
 
     const toastHeader = document.createElement("div");
     toastHeader.classList.add("toast-header");

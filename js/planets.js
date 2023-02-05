@@ -95,14 +95,30 @@ function drawSolarSystem(scene) {
     scene.add(sphere);
 }
 
+function resizeRendererHandler(renderer, camera) {
+    return (event) => {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+
+        renderer.setSize(width, height);
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+    }
+}
+
 function universeInit() {
     /* three.js example */
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-    const renderer = new THREE.WebGLRenderer();
+    const renderer = new THREE.WebGLRenderer({canvas: document.querySelector("#universe")});
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
+    addEventListener("resize", resizeRendererHandler(renderer, camera));
+    /*
+    const resizeObserver = new ResizeObserver(resizeRendererHandler(renderer, camera));
+    resizeObserver.observe(renderer.domElement, {box: 'content-box'});
+    */
 
     camera.position.z = 5;
     const controls = new OrbitControls(camera, renderer.domElement);

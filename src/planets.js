@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import * as bootstrap from "bootstrap"
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 import $ from 'jquery';
@@ -7,7 +8,6 @@ var ct = require('color-temperature');
 
 
 const std_dist = 5.0;
-
 
 function d2r(d) {
     return d / 180 * Math.PI;
@@ -244,10 +244,7 @@ function universeInit() {
         dividePlanetGroups();
     });
 
-    let moving = false;
-    function onPointerClick(event) {
-        if (moving)
-            return;
+    function onPointerMove(event) {
         pointer.set((event.clientX / window.innerWidth) * 2 - 1, - (event.clientY / window.innerHeight) * 2 + 1);
         raycaster.setFromCamera(pointer, camera);
 
@@ -258,36 +255,78 @@ function universeInit() {
                 selected_planet = null;
             }
         } else {
-            let groupSets = findPlanetGroups(camera.position.length());
-            for (const group of groupSets) {
-                const intersects = raycaster.intersectObjects(group.members);
-                if (intersects.length > 0) {
-                    selected_planet = intersects[0].object;
-                    selected_planet.material.color.set(0x6495ED);
-                    let planet = sphere2planet.get(selected_planet);
-                    alert(planet.hostname);
-                    break;
-                }
+            const intersects = raycaster.intersectObjects(scene.children);
+            if (intersects.length > 0) {
+                selected_planet = intersects[0].object;
+                selected_planet.material.color.set(0x6495ED);
             }
         }
-
-        animate();
     }
 
-    function onPointerMove(event) {
-        moving = true;
-    }
-
-    function onPointerUp(event) {
-        moving = false;
+    function onPointerClick(event) {
+        if (selected_planet) {
+            let planet = sphere2planet.get(selected_planet);
+        }
     }
 
     document.addEventListener('click', onPointerClick);
     document.addEventListener('pointermove', onPointerMove);
-    document.addEventListener('pointerup', onPointerUp);
 
     animate();
+}
 
+function initializeToast() {
+    const toastContainer = document.createElement("div");
+    toastContainer.classList.add("toast-container");
+    toastContainer.classList.add("position-fixed");
+    toastContainer.classList.add("top-0");
+    toastContainer.classList.add("end-0");
+    toastContainer.classList.add("p-3");
+
+    const toast = document.createElement("div");
+    toast.classList.add("toast");
+    toast.id = "liveToast";
+    toast.setAttribute("role", "alert");
+    toast.setAttribute("aria-live", "assertive");
+    toast.setAttribute("aria-atomic", "true");
+    toast.setAttribute("autohide", "false");
+
+    const toastHeader = document.createElement("div");
+    toastHeader.classList.add("toast-header");
+
+    const toastTitle = document.createElement("strong");
+    toastTitle.id = "toast-title";
+    toastTitle.classList.add("me-auto");
+    toastHeader.appendChild(toastTitle);
+
+    const toastButton = document.createElement("button");
+    toastButton.classList.add("btn-close");
+    toastButton.setAttribute("type", "button");
+    toastButton.setAttribute("data-bs-dismiss", "toast");
+    toastButton.setAttribute("aria-label", "Close");
+    toastHeader.appendChild(toastButton);
+
+    toast.appendChild(toastHeader);
+
+    const toastBody = document.createElement("div");
+    toastBody.classList("toast-body");
+
+    /**
+     * For function to add lists
+     */
+
+    toast.appendChild(toastBody);
+
+    toastContainer.appendChild(toast);
+
+    document.appendChild(toastContainer);
+}
+
+function triggerToast() {
+    const toastLiveExample = document.getElementById('liveToast')
+    const toast = new bootstrap.Toast(toastLiveExample)
+
+    toast.show()
 }
 
 universeInit();

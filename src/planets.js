@@ -38,6 +38,21 @@ function getPlanetSphericalExoplanets(planet) {
     return new THREE.Spherical(dist, theta, phi);
 }
 
+function getDescExoplanets(planet) {
+    let desc = {};
+    desc["Planet Name"] = planet.pl_name;
+    desc["Host Name"] = planet.hostname;
+    desc["Discovered Year"] = planet.disc_year;
+    desc["Discovered Facility"] = planet.disc_facility;
+    desc["Mass"] = planet.pl_bmasse;
+    desc["Distance"] = planet.sy_dist;
+    desc["Planet Radius"] = planet.pl_rade;
+    desc["Right Ascension"] = planet.rastr;
+    desc["Declination"] = planet.decstr;
+
+    return desc;
+}
+
 function getRadiusHYG(planet) {
     const radius = planet.r1;
     return radius / 1000;
@@ -51,7 +66,7 @@ function getRadiusExoplanets(planet) {
 
 function invalidPlanetExoplanets(planet) {
     return !planet || !planet.ra || !planet.dec || !planet.pl_rade
-        || !planet.sy_dist;
+        || !planet.sy_dist || !planet.pl_name;
 }
 
 
@@ -83,7 +98,8 @@ const databases = {
         "getSpherical": getPlanetSphericalExoplanets,
         "getRadius": getRadiusExoplanets,
         "invalidPlanet": invalidPlanetExoplanets,
-        "getColor": getColorExoplanets
+        "getColor": getColorExoplanets,
+        "getDesc": getDescExoplanets
     },
 };
 

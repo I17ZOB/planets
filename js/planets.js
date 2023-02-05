@@ -24,9 +24,27 @@ function getPlanetSphericalExoplanets(planet) {
     return new THREE.Spherical(dist, theta, phi);
 }
 
+function getRadiusHYG(planet) {
+    const radius = planet.r1;
+    return redius / 1000;
+}
+
+function getRadiusExoplanets(planet) {
+    const radius = planet.pl_rade;
+    return radius / 100;
+}
+
 const databases = {
-    "HYG": {"file": "./hygdata_v3.csv", "getSpherical": getPlanetSphericalHYG},
-    "exoplanets": {"file": "./exoplanets.csv", "getSpherical": getPlanetSphericalExoplanets},
+    "HYG": {
+        "file": "./hygdata_v3.csv",
+        "getSpherical": getPlanetSphericalHYG,
+        "getRadius": getRadiusHYG
+    },
+    "exoplanets": {
+        "file": "./exoplanets.csv",
+        "getSpherical": getPlanetSphericalExoplanets,
+        "getRadius": getRadiusExoplanets
+    },
 };
 
 const db = "exoplanets";
@@ -37,11 +55,6 @@ function d2r(d) {
 
 function ra24h2d(ra24h) {
     return ra24h / 24 * 360;
-}
-
-function getPlanetRadius(planet) {
-    const dist = planet.dist;
-    const radius = planet.r1;
 }
 
 
@@ -77,7 +90,7 @@ function universeInit() {
 
     
     function drawPlanet(planet, test) {
-        const geo = new THREE.SphereGeometry(0.1, 32, 32);
+        const geo = new THREE.SphereGeometry(databases[db].getRadius(planet), 8, 8);
         const color = test ? 0xff0000 : 0xffffff;
         const material = new THREE.MeshBasicMaterial({color: color});
         const sphere = new THREE.Mesh(geo, material);

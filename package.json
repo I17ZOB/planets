@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/I17ZOB/planets#readme",
   "dependencies": {
+    "@popperjs/core": "^2.11.6",
     "bootstrap": "^5.2.3",
     "color-temperature": "^0.2.7",
     "copy-webpack-plugin": "^11.0.0",

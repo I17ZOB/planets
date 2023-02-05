@@ -40,7 +40,7 @@ function getPlanetSphericalExoplanets(planet) {
 
 function getRadiusHYG(planet) {
     const radius = planet.r1;
-    return redius / 1000;
+    return radius / 1000;
 }
 
 function getRadiusExoplanets(planet) {

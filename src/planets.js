@@ -6,6 +6,7 @@ import $ from 'jquery';
 var csv = require('jquery-csv');
 var ct = require('color-temperature');
 
+require('popper.js');
 
 const std_dist = 5.0;
 
@@ -280,13 +281,29 @@ function universeInit() {
     }
 
     function onPointerClick(event) {
-        if (selected_planet) {
+        if (selected_planet && !(selected_planet.position.equals(new THREE.Vector3()))) {
             let planet = sphere2planet.get(selected_planet);
+
+            let planetDesc = databases[db].getDesc(planet);
+
+            const toastTitle = document.getElementById("toast-title");
+            toastTitle.textContent = planetDesc["Planet Name"];
+
+            for (let key in planetDesc) {
+                if (key == "Planet Name") 
+                    continue;
+
+                
+            }
+
+            triggerToast();
         }
     }
 
     document.addEventListener('click', onPointerClick);
     document.addEventListener('pointermove', onPointerMove);
+
+    initializeToast();
 
     animate();
 }
@@ -325,17 +342,14 @@ function initializeToast() {
     toast.appendChild(toastHeader);
 
     const toastBody = document.createElement("div");
-    toastBody.classList("toast-body");
-
-    /**
-     * For function to add lists
-     */
+    toastBody.id = "toast-body";
+    toastBody.classList.add("toast-body");
 
     toast.appendChild(toastBody);
 
     toastContainer.appendChild(toast);
 
-    document.appendChild(toastContainer);
+    document.body.appendChild(toastContainer);
 }
 
 function triggerToast() {

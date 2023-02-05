@@ -103,7 +103,7 @@ function findPlanetGroupDivs(disFrom, disTo) {
     let groupSet = [];
     for (const group of planetGroups) {
         const dis = group.center.length();
-        if (dis - 2 * group.radius <= disTo && dis + 2 * group.radius >=disFrom) {
+        if (dis - 2 * group.radius <= disTo && dis + 2 * group.radius >= disFrom) {
             groupSet.push(group);
         }
     }
@@ -240,7 +240,10 @@ function universeInit() {
         dividePlanetGroups();
     });
 
-    async function onPointerMove(event) {
+    let moving = false;
+    function onPointerClick(event) {
+        if (moving)
+            return;
         pointer.set((event.clientX / window.innerWidth) * 2 - 1, - (event.clientY / window.innerHeight) * 2 + 1);
         raycaster.setFromCamera(pointer, camera);
 
@@ -253,7 +256,7 @@ function universeInit() {
         } else {
             let groupSets = findPlanetGroups(camera.position.length());
             for (const group of groupSets) {
-                const intersects = await raycaster.intersectObjects(group.members);
+                const intersects = raycaster.intersectObjects(group.members);
                 if (intersects.length > 0) {
                     selected_planet = intersects[0].object;
                     selected_planet.material.color.set(0x6495ED);
@@ -265,7 +268,17 @@ function universeInit() {
         animate();
     }
 
-    document.addEventListener('pointermove', (event)=>onPointerMove(event));
+    function onPointerMove(event) {
+        moving = true;
+    }
+
+    function onPointerUp(event) {
+        moving = false;
+    }
+
+    document.addEventListener('click', onPointerClick);
+    document.addEventListener('pointermove', onPointerMove);
+    document.addEventListener('pointerup', onPointerUp);
 
     animate();
 

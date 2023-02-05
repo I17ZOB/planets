@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import {OrbitControls} from "three/addons/controls/OrbitControls.js";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 import $ from 'jquery';
 var csv = require('jquery-csv');
@@ -51,7 +51,7 @@ function getRadiusExoplanets(planet) {
 
 function invalidPlanetExoplanets(planet) {
     return !planet || !planet.ra || !planet.dec || !planet.pl_rade
-    || !planet.sy_dist;
+        || !planet.sy_dist;
 }
 
 
@@ -124,12 +124,12 @@ function dividePlanetGroups() {
         //alert(groupSet.length);
     }
 }
-    
+
 function drawPlanet(scene, planet, test) {
     const radius = databases[db].getRadius(planet);
     const geo = new THREE.SphereGeometry(radius, 8, 8);
     const color = test ? 0xff0000 : databases[db].getColor(planet);
-    const material = new THREE.MeshBasicMaterial({color: color});
+    const material = new THREE.MeshBasicMaterial({ color: color });
     const sphere = new THREE.Mesh(geo, material);
 
     var sph = databases[db].getSpherical(planet);
@@ -173,9 +173,9 @@ function drawPlanet(scene, planet, test) {
 
 function drawSolarSystem(scene) {
     const geo = new THREE.SphereGeometry(0.1, 32, 32);
-    const material = new THREE.MeshBasicMaterial({color: 0xffc040});
+    const material = new THREE.MeshBasicMaterial({ color: 0xffc040 });
     const sphere = new THREE.Mesh(geo, material);
-    
+
     sphere.position.set(0, 0, 0);
     scene.add(sphere);
 }
@@ -191,10 +191,15 @@ function resizeRendererHandler(renderer, camera) {
     }
 }
 
+let selected_planet = null;
+
 function universeInit() {
     /* three.js example */
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+    const raycaster = new THREE.Raycaster();
+    const pointer = new THREE.Vector2();
 
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -218,11 +223,11 @@ function universeInit() {
 
     drawSolarSystem(scene);
 
-    $.get(databases[db].file, function(data) {
+    $.get(databases[db].file, function (data) {
         const exoplanets = csv.toObjects(data);
         for (const [i, planet] of exoplanets.entries()) {
             if (databases[db].invalidPlanet(planet))
-              continue;
+                continue;
             drawPlanet(scene, planet, false);
         }
         //alert(planetGroups.length);
@@ -234,9 +239,32 @@ function universeInit() {
 
         dividePlanetGroups();
     });
-    
-    animate();
-}
 
+    async function onPointerMove(event) {
+        pointer.set((event.clientX / window.innerWidth) * 2 - 1, - (event.clientY / window.innerHeight) * 2 + 1);
+        raycaster.setFromCamera(pointer, camera);
+
+        if (selected_planet) {
+            const intersects = raycaster.intersectObject(selected_planet);
+            if (intersects.length == 0) {
+                selected_planet.material.color.set(selected_planet.position.equals(new THREE.Vector3()) ? 0xffc040 : 0xffffffff);
+                selected_planet = null;
+            }
+        } else {
+            const intersects = await raycaster.intersectObjects(scene.children);
+            if (intersects.length > 0) {
+                selected_planet = intersects[0].object;
+                selected_planet.material.color.set(0x6495ED);
+            }
+        }
+
+        animate();
+    }
+
+    document.addEventListener('pointermove', (event)=>onPointerMove(event));
+
+    animate();
+
+}
 
 universeInit();

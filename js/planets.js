@@ -1,9 +1,41 @@
 import * as THREE from "three";
 import {OrbitControls} from "three/addons/controls/OrbitControls.js";
 
-function drawPlanet(planet) {
-    
-};
+const std_dist = 5.0;
+
+function d2r(d) {
+    return d / 180 * Math.PI;
+}
+
+function ra24h2d(ra24h) {
+    return ra24h / 24 * 360;
+}
+
+function getPlanetRadius(planet) {
+    const dist = planet.dist;
+    const radius = planet.r1;
+}
+
+function getPlanetSphericalHYG(planet) {
+    const dist = planet.dist;
+    const ra = d2r(ra24h2d(planet.ra));
+    const dec = d2r(planet.dec);
+    const phi = 2 * Math.PI - ra;
+    const theta = 0.5 * Math.PI - dec;
+    //alert([phi/Math.PI, theta/Math.PI]);
+    return new THREE.Spherical(std_dist, theta, phi);
+}
+
+
+function getPlanetSphericalNASA(planet) {
+    const dist = planet.pl_dist;
+    const ra = d2r(planet.ra);
+    const dec = d2r(planet.dec);
+    const phi = 2 * Math.PI - ra;
+    const theta = 0.5 * Math.PI - dec;
+    //alert([phi/Math.PI, theta/Math.PI]);
+    return new THREE.Spherical(dist, theta, phi);
+}
 
 function universeInit() {
     /* three.js example */
@@ -35,14 +67,28 @@ function universeInit() {
 
     };
 
-    animate();
+    
+    function drawPlanet(planet, test) {
+        const geo = new THREE.SphereGeometry(0.1, 32, 32);
+        const color = test ? 0xff0000 : 0xffffff;
+        const material = new THREE.MeshBasicMaterial({color: color});
+        const sphere = new THREE.Mesh(geo, material);
 
-    $.get("./exoplanets.csv", function(data) {
-        exoplanets = $.csv.toObjects(data);
-        for (const planet of exoplanets) {
-            drawPlanet(planet);
+        var sph = getPlanetSphericalNASA(planet);
+
+        sphere.position.setFromSpherical(sph);
+        scene.add(sphere);
+    };
+
+    //    $.get("./hygdata_v3.csv", function(data) {
+        $.get("./exoplanets.csv", function(data) {
+        const exoplanets = $.csv.toObjects(data);
+        for (const [i, planet] of exoplanets.entries()) {
+            drawPlanet(planet, false);
         }
     });
+    
+    animate();
 }
 
 

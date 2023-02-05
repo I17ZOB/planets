@@ -46,7 +46,7 @@ function getRadiusExoplanets(planet) {
 
 function invalidPlanetExoplanets(planet) {
     return !planet || !planet.ra || !planet.dec || !planet.pl_rade
-    || !planet.sy_dist;
+    || !planet.sy_dist || !planet.pl_eqt;
 }
 
 
@@ -55,6 +55,15 @@ function invalidPlanetHYG(planet) {
     return !planet;
 }
 
+function temp2color(planet) {
+    /* TODO */
+    return 0xffffff;
+}
+
+function getColorExoplanets(planet) {
+    const temp = planet.pl_eqt;
+    return temp2color(temp);
+}
 
 const databases = {
     "HYG": {
@@ -67,7 +76,8 @@ const databases = {
         "file": "./exoplanets.csv",
         "getSpherical": getPlanetSphericalExoplanets,
         "getRadius": getRadiusExoplanets,
-        "invalidPlanet": invalidPlanetExoplanets
+        "invalidPlanet": invalidPlanetExoplanets,
+        "getColor": getColorExoplanets
     },
 };
 

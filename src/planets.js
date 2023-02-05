@@ -251,10 +251,14 @@ function universeInit() {
                 selected_planet = null;
             }
         } else {
-            const intersects = await raycaster.intersectObjects(scene.children);
-            if (intersects.length > 0) {
-                selected_planet = intersects[0].object;
-                selected_planet.material.color.set(0x6495ED);
+            let groupSets = findPlanetGroups(camera.position.length());
+            for (const group of groupSets) {
+                const intersects = await raycaster.intersectObjects(group.members);
+                if (intersects.length > 0) {
+                    selected_planet = intersects[0].object;
+                    selected_planet.material.color.set(0x6495ED);
+                    break;
+                }
             }
         }
 

@@ -19,6 +19,7 @@
   "homepage": "https://github.com/I17ZOB/planets#readme",
   "dependencies": {
     "bootstrap": "^5.2.3",
+    "color-temperature": "^0.2.7",
     "file-loader": "^6.2.0",
     "html-webpack-plugin": "^5.5.0",
     "jquery": "^3.6.3",

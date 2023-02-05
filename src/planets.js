@@ -1,6 +1,9 @@
 import * as THREE from "three";
 import {OrbitControls} from "three/addons/controls/OrbitControls.js";
 
+import $ from 'jquery';
+var csv = require('jquery-csv');
+
 const std_dist = 5.0;
 
 function getPlanetSphericalHYG(planet) {
@@ -89,7 +92,7 @@ function universeInit() {
     };
 
     $.get(databases[db].file, function(data) {
-        const exoplanets = $.csv.toObjects(data);
+        const exoplanets = csv.toObjects(data);
         for (const [i, planet] of exoplanets.entries()) {
             drawPlanet(planet, false);
         }

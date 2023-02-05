@@ -169,6 +169,8 @@ function drawPlanet(scene, planet, test) {
         newGroup.members = [sphere];
         planetGroups.push(newGroup);
     }
+
+    return sphere;
 };
 
 function drawSolarSystem(scene) {
@@ -192,6 +194,7 @@ function resizeRendererHandler(renderer, camera) {
 }
 
 let selected_planet = null;
+let sphere2planet = new Map();
 
 function universeInit() {
     /* three.js example */
@@ -228,7 +231,8 @@ function universeInit() {
         for (const [i, planet] of exoplanets.entries()) {
             if (databases[db].invalidPlanet(planet))
                 continue;
-            drawPlanet(scene, planet, false);
+            let sphere = drawPlanet(scene, planet, false);
+            sphere2planet.set(sphere, planet);
         }
         //alert(planetGroups.length);
         let maxGroupSize = -1;
@@ -260,6 +264,8 @@ function universeInit() {
                 if (intersects.length > 0) {
                     selected_planet = intersects[0].object;
                     selected_planet.material.color.set(0x6495ED);
+                    let planet = sphere2planet.get(selected_planet);
+                    alert(planet.hostname);
                     break;
                 }
             }
